@@ -101,6 +101,8 @@ d.start()
 
 e = threading.Thread(target=Sending, args=(open_ch,))
 e.start()
-
-for item in users:
-    print(item)
+while True:
+    for item in users:
+        print(item)
+        time.sleep(3)
+        os.system('CLS')
