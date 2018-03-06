@@ -88,10 +88,9 @@ def chat_update():
 
 
 print("Please choose login")
-print((([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0])
+IPaddr=(([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
 message = input()
-fkl=socket.gethostname()
-MESSAGE = socket.gethostbyname(fkl)+"@#"+message
+MESSAGE = IPaddr+"@#"+message
 users.append(socket.gethostbyname(socket.getfqdn())+"@#"+message)
 c = threading.Thread(target=Receiving)
 c.start()
