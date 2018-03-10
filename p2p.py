@@ -3,6 +3,7 @@ import threading
 import os
 import time
 
+UDP_PORT = 5005
 users = []
 MESSAGE = ""
 open_ch = ""
@@ -12,19 +13,17 @@ ans = threading.Event()
 
 
 def notification():
-    UDP_PORT = 5005
     print("UDP target port:", UDP_PORT)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    i=0
-    while i<4:
+    i = 0
+    while i < 4:
         sock.sendto(MESSAGE.encode(), ('<broadcast>', UDP_PORT))
         time.sleep(0.5)
-        i=i+1
+        i = i+1
 
 
 def Receiving():
-    UDP_PORT = 5005
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
     sock.bind(('', UDP_PORT))
     while True:
@@ -49,7 +48,8 @@ def Receiving():
             writeback = data.decode().split("|")
             print("received message:", data.decode())
             chat = open("chat"+writeback[0]+".txt", "a")
-            chat.write(writeback[1])
+            chat.write("\n")
+            chat.write("\n"+data.decode())
             chat.close()
 
 
@@ -63,7 +63,7 @@ def chat_update():
         os.system('CLS')
         file = open("chat"+open_ch+".txt", "r")
         for line in file:
-            print(line, end="")
+            print(line)
             print(1)
         file.close()
         time.sleep(3)
@@ -71,17 +71,16 @@ def chat_update():
 
 def Sending(Actual_chat):
     while True:
-        ans.wait()
+        # ans.wait()
         Node = input()
         print(Node)
         print(open_ch)
         print(Actual_chat)
-        #ans.wait()
+        # ans.wait()
         if Node == "back to menu":
             ans.clear()
             chat_update()
         else:
-            UDP_PORT = 5005
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
             i = 0
             while i < len(users):
@@ -100,10 +99,11 @@ def Sending(Actual_chat):
 
 
 print("Please choose login")
-IPaddr=(([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
+IPaddr = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(
+    ("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
 message = input()
 MESSAGE = IPaddr+"@#"+message
-users.append(socket.gethostbyname(socket.getfqdn())+"@#"+message)
+users.append(MESSAGE)
 c = threading.Thread(target=Receiving)
 c.start()
 notification()
@@ -111,7 +111,7 @@ notification()
 chat_update()
 
 #d = threading.Thread(target=chat_update)
-#d.start()
+# d.start()
 
 """while True:
     for item in users:
