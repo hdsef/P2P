@@ -10,7 +10,7 @@ open_ch = ""
 event = threading.Event()
 event.set()
 ans = threading.Event()
-
+flage=0
 
 def notification():
     print("UDP target port:", UDP_PORT)
@@ -51,22 +51,6 @@ def Receiving():
             chat.close()
 
 
-def chat_update():
-    print("open chat with")
-    open_ch = input()
-    ans.set()
-    e = threading.Thread(target=Sending, args=(open_ch,))
-    e.start()
-    while True:
-        os.system('CLS')
-        file = open("chat"+open_ch+".txt", "r")
-        for line in file:
-            print(line)
-            #print(1)
-        file.close()
-        time.sleep(3)
-
-
 def Sending(Actual_chat):
     while True:
         # ans.wait()
@@ -76,8 +60,9 @@ def Sending(Actual_chat):
         print(Actual_chat)
         # ans.wait()
         if Node == "back to menu":
-            ans.clear()
-            chat_update()
+            global flage
+            flage=1
+            break
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
             i = 0
@@ -96,6 +81,37 @@ def Sending(Actual_chat):
                 i += 1
 
 
+def chat_update():
+    print("open chat with")
+    open_ch = input()
+    ans.set()
+    e = threading.Thread(target=Sending, args=(open_ch,))
+    e.start()
+    while True:
+        if flage==1:
+            os.system('CLS')
+            break
+        else:
+            os.system('CLS')
+            file = open("chat"+open_ch+".txt", "r")
+            for line in file:
+                print(line)
+                #print(1)
+            file.close()
+            time.sleep(3)
+
+
+def menu():
+    while True:
+        os.system('CLS')
+        for item in users:
+            print(item)
+        chat_update()
+        global flage
+        flage=0
+
+
+
 print("Please choose login")
 #IPaddr = (([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(
 #    ("8.8.8.8", 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) + ["no IP found"])[0]
@@ -112,7 +128,7 @@ c = threading.Thread(target=Receiving)
 c.start()
 notification()
 
-chat_update()
+menu()
 
 #d = threading.Thread(target=chat_update)
 # d.start()
