@@ -28,7 +28,6 @@ def Receiving():
     sock.bind(('', UDP_PORT))
     while True:
         event.wait()
-        print("1")
         data, addr = sock.recvfrom(1024)
         if data.decode().find("@#") != -1:
             writeback = data.decode().split("@#")
@@ -38,14 +37,12 @@ def Receiving():
                     flag = 1
             if flag != 1:
                 users.append(data.decode())
-                print(writeback[0], "gdohndoh")
                 chat = open("chat"+writeback[1]+".txt", "a")
                 chat.close()
                 if data.decode() != MESSAGE:
                     sock.sendto(MESSAGE.encode(), (writeback[0], UDP_PORT))
         elif data.decode().find("|") != -1:
             writeback = data.decode().split("|")
-            print("received message:", data.decode())
             chat = open("chat"+writeback[0]+".txt", "a")
             chat.write("\n"+data.decode())
             chat.close()
@@ -69,7 +66,6 @@ def Sending(Actual_chat):
             while i < len(users):
                 IP = users[i].split("@#")
                 if Actual_chat == IP[1]:
-                    print("SEDG")
                     event.clear()
                     a = (message+"|"+Node).encode()
                     sock.sendto(a, (IP[0], UDP_PORT))
@@ -96,7 +92,6 @@ def chat_update():
             file = open("chat"+open_ch+".txt", "r")
             for line in file:
                 print(line)
-                #print(1)
             file.close()
             time.sleep(3)
 
@@ -127,14 +122,4 @@ chat.close()
 c = threading.Thread(target=Receiving)
 c.start()
 notification()
-
 menu()
-
-#d = threading.Thread(target=chat_update)
-# d.start()
-
-"""while True:
-    for item in users:
-        print(item)
-        time.sleep(3)
-    os.system('CLS')"""
