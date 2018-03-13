@@ -41,9 +41,8 @@ def Receiving():                                #Получение UDP паке
                     sock.sendto(LogIp.encode(), (writeback[0], UDP_PORT)) #Пакет новому пользователю содержащий логин и IP
         elif data.decode().find("|") != -1:
             writeback = data.decode().split("|")
-            chat = open("chat" + writeback[0] + ".txt", "a")
-            chat.write("\n" + data.decode())
-            chat.close()
+            with open("chat" + writeback[0] + ".txt", "a") as chat:
+                chat.write("\n" + data.decode())
 
 
 def Sending(Actual_chat):                   #Отправка сообщений
@@ -62,9 +61,8 @@ def Sending(Actual_chat):                   #Отправка сообщений
                     event.clear()    #event=False останавливает Receiving
                     a = (login + "|" + message).encode()
                     sock.sendto(a, (IP[0], UDP_PORT))
-                    chat = open("chat" + IP[1] + ".txt", "a")
-                    chat.write("\n" + a.decode())
-                    chat.close()
+                    with open("chat" + IP[1] + ".txt", "a") as chat:
+                        chat.write("\n" + a.decode())
                     event.set()    #event=True позволяет Receiving продолжить работу
                 i += 1
 
@@ -80,10 +78,9 @@ def chat_update():             #Обновление открытого чата
             break
         else:
             os.system('CLS')
-            file = open("chat" + open_ch + ".txt", "r")
-            for line in file:
-                print(line)
-            file.close()
+            with open("chat" + open_ch + ".txt", "r") as file:
+                for line in file:
+                    print(line)
             time.sleep(3)
 
 
