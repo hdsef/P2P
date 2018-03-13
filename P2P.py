@@ -7,9 +7,9 @@ UDP_PORT = 5005
 users = []
 LogIp = ""
 open_ch = ""
-event = threading.Event()
-event.set()
-flage = 0
+event = threading.Event() #флаг для прерывания потока получения
+event.set() #event = True
+cl_ch = 0 #close chat
 
 def notification():                             #BROADCAST оповещение сети о новом пользователе
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -25,20 +25,20 @@ def Receiving():                                #Получение UDP паке
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
     sock.bind(('', UDP_PORT))
     while True:
-        event.wait()
+        event.wait()  #если True продолжает работу, иначе ждет
         data, addr = sock.recvfrom(1024)
         if data.decode().find("@#") != -1:
             writeback = data.decode().split("@#")
-            flag = 0
+            existing_user = 0
             for item in users:
                 if item == data.decode():
-                    flag = 1
-            if flag != 1:
+                    existing_user = 1
+            if existing_user != 1:
                 users.append(data.decode())
                 chat = open("chat" + writeback[1] + ".txt", "a")
                 chat.close()
                 if data.decode() != LogIp:
-                    sock.sendto(LogIp.encode(), (writeback[0], UDP_PORT))
+                    sock.sendto(LogIp.encode(), (writeback[0], UDP_PORT)) #Пакет новому пользователю содержащий логин и IP
         elif data.decode().find("|") != -1:
             writeback = data.decode().split("|")
             chat = open("chat" + writeback[0] + ".txt", "a")
@@ -50,8 +50,8 @@ def Sending(Actual_chat):                   #Отправка сообщений
     while True:
         message = input()
         if message == "back to menu":
-            global flage
-            flage = 1
+            global cl_ch
+            cl_ch = 1
             break
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
@@ -59,23 +59,23 @@ def Sending(Actual_chat):                   #Отправка сообщений
             while i < len(users):
                 IP = users[i].split("@#")
                 if Actual_chat == IP[1]:
-                    event.clear()
+                    event.clear()    #event=False останавливает Receiving
                     a = (login + "|" + message).encode()
                     sock.sendto(a, (IP[0], UDP_PORT))
                     chat = open("chat" + IP[1] + ".txt", "a")
                     chat.write("\n" + a.decode())
                     chat.close()
-                    event.set()
+                    event.set()    #event=True позволяет Receiving продолжить работу
                 i += 1
 
 
-def chat_update():                                            #Обновление открытого чата
+def chat_update():             #Обновление открытого чата каждые 3 секунды
     print("open chat with")
     open_ch = input()
     e = threading.Thread(target=Sending, args=(open_ch,))
-    e.start()
+    e.start() #запускает поток Отправки
     while True:
-        if flage == 1:
+        if cl_ch == 1:
             os.system('CLS')
             break
         else:
@@ -115,8 +115,8 @@ chat = open("chat" + login + ".txt", "a")
 chat.close()
 
 c = threading.Thread(target=Receiving)
-c.start()
+c.start() #запускает поток Получения
 
-notification()
+notification() 
 
 menu()
